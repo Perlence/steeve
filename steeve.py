@@ -49,7 +49,7 @@ def install(package, version, path, force):
 @cli.command(help="Remove the whole package or specific version.")
 @click.argument('package')
 @click.argument('version', required=False)
-def remove(package, version):
+def uninstall(package, version):
     if version is None:
         unstow(package)
         shutil.rmtree(join(STOW_DIR, package))
