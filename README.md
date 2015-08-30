@@ -41,7 +41,7 @@ The main gotcha is GNU Stow's tree folding mechanism. Please, get accustomed to 
 ## Dependencies
 
 - Python 2.7
-- GNU stow 2.2
+- GNU Stow 2.2
 
 
 ## Installation
@@ -147,7 +147,7 @@ $ steeve ls tig
 * 2.1.1
 ```
 
-`steeve` marks current version with an asterisk as seen above.
+*steeve* marks current version with an asterisk as seen above.
 
 To remove specific version of a package, run command `uninstall` with package name and version:
 
@@ -166,4 +166,4 @@ $ sudo steeve uninstall tig
 
 ## Thanks
 
-Thanks to authors of [GoboLinux](http://gobolinux.org/) from which I borrowed the idea of file hierarchy.
+Thanks to authors of [GoboLinux](http://gobolinux.org/) from which I borrowed the idea of package structure.
