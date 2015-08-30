@@ -72,7 +72,6 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
             shutil.copytree(path, self.package_path(package, version))
         except OSError as err:
             if err.errno == errno.EEXIST and os.path.isdir(path):
-                click.echo(err)
                 click.echo("the package '{}/{}' is already installed"
                            .format(package, version),
                            err=True)
@@ -80,17 +79,14 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
             else:
                 raise
 
-        self.unstow(package)
-        self.link_current(package, version)
-        self.stow(package)
+        self.use(package, version)
 
     def uninstall(self, package, version):
         if version is None:
             self.unstow(package)
             shutil.rmtree(self.package_path(package))
         else:
-            current = self.current_version(package)
-            if version == current:
+            if version == self.current_version(package):
                 self.unstow(package)
             shutil.rmtree(self.package_path(package, version))
 
@@ -99,7 +95,6 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
                 os.rmdir(self.package_path(package))
 
     def use(self, package, version):
-        pass
         if not os.path.exists(self.package_path(package, version)):
             click.echo("package '{}/{}' is not installed"
                        .format(package, version),
