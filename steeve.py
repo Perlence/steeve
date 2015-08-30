@@ -66,24 +66,31 @@ def uninstall(package, version):
         if version == current:
             unstow(package)
         shutil.rmtree(join(STOW_DIR, package, version))
+
     # Remove empty package folder
     if not os.listdir(join(STOW_DIR, package)):
         os.rmdir(join(STOW_DIR, package))
-
-
-@cli.command(help="Delete stowed symlinks.")
-@click.argument('package', callback=validate_dir)
-def unuse(package):
-    unstow(package)
 
 
 @cli.command(help="Stow given package version into target dir.")
 @click.argument('package', callback=validate_dir)
 @click.argument('version', callback=validate_dir)
 def use(package, version):
+    if not os.path.exists(join(STOW_DIR, package, version)):
+        click.echo("package '{}/{}' is not installed"
+                   .format(package, version),
+                   err=True)
+        return
+
     unstow(package)
     link_current(package, version)
     stow(package)
+
+
+@cli.command(help="Delete stowed symlinks.")
+@click.argument('package', callback=validate_dir)
+def unuse(package):
+    unstow(package)
 
 
 @cli.command(help="List packages or package versions.")
@@ -142,8 +149,8 @@ def stow(package):
             '-d', join(STOW_DIR, package),
             'current'])
     except subprocess.CalledProcessError as err:
-        click.echo('stow returned code {}: {}'
-                   .format(err.returncode, err.output),
+        click.echo('stow returned code {}'
+                   .format(err.returncode),
                    err=True)
 
 
@@ -158,8 +165,8 @@ def unstow(package):
             '-D',
             'current'])
     except subprocess.CalledProcessError as err:
-        click.echo('stow returned code {}: {}'
-                   .format(err.returncode, err.output),
+        click.echo('stow returned code {}'
+                   .format(err.returncode),
                    err=True)
     os.remove(join(STOW_DIR, package, 'current'))
 
