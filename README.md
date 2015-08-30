@@ -5,7 +5,7 @@ Tiny [GNU Stow](https://www.gnu.org/software/stow/)–based package manager.
 
 ## Summary
 
-*steeve* is not a replacement for any full-fledged package manager like *dpkg* or *yum*, but instead an addition, designed to handle manually built software and binary distributions. Instead of polluting `/usr/local` with binaries and libraries that aren't tracked by any package manager and thus cannot be safely removed of upgraded, *steeve* provides a structured approach that allows for managing multiple software versions in a matter of a command.
+*steeve* is not a replacement for any full-fledged package manager like *dpkg* or *yum*, but instead an addition, designed to handle manually built software and binary distributions. Instead of polluting `/usr/local` with binaries and libraries that aren't tracked by any package manager and thus cannot be safely removed or upgraded, *steeve* provides a structured approach that allows for managing multiple software versions in a matter of a command.
 
 
 ## Packages
