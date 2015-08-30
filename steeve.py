@@ -5,24 +5,27 @@ import os
 from os.path import join
 import shutil
 import subprocess
+from collections import namedtuple
 
 import click
 
 
-STOW_DIR = '/usr/local/stow'
-STOW_TARGET = '/usr/local'
-
-
 def validate_dir(ctx, param, value):
-    if '/' in value or '\0' in value:
-        raise click.BadParameter("must be a directory name."
-                                 .format(param))
+    if value is not None and ('/' in value or '\0' in value):
+        raise click.BadParameter("must be a directory name.")
     return value
 
 
 @click.group()
-def cli():
-    pass
+@click.option('-d', '--dir', metavar='DIR', default='/usr/local/stow',
+              help="Set location of packages to DIR.")
+@click.option('-t', '--target', metavar='DIR', default='/usr/local',
+              help="Set stow target to DIR.")
+@click.option('--no-folding', is_flag=True,
+              help="Disable folding of newly stowed directories.")
+@click.pass_context
+def cli(ctx, dir, target, no_folding):
+    ctx.obj = Steeve(dir, target, no_folding)
 
 
 @cli.command(help="Install package from given folder.")
@@ -31,9 +34,10 @@ def cli():
 @click.argument('path')
 @click.option('-f', '--force', is_flag=True,
               help="Rewrite package contents.")
-def install(package, version, path, force):
-    package_path = join(STOW_DIR, package)
-    package_version_path = join(STOW_DIR, package, version)
+@click.pass_obj
+def install(steeve, package, version, path, force):
+    package_path = join(steeve.dir, package)
+    package_version_path = join(steeve.dir, package, version)
 
     try:
         makedirs(package_path, exist_ok=True)
@@ -49,63 +53,68 @@ def install(package, version, path, force):
             raise
     shutil.copytree(path, package_version_path)
 
-    unstow(package)
-    link_current(package, version)
-    stow(package)
+    steeve.unstow(package)
+    steeve.link_current(package, version)
+    steeve.stow(package)
 
 
 @cli.command(help="Remove the whole package or specific version.")
 @click.argument('package', callback=validate_dir)
 @click.argument('version', required=False, callback=validate_dir)
-def uninstall(package, version):
+@click.pass_obj
+def uninstall(steeve, package, version):
     if version is None:
-        unstow(package)
-        shutil.rmtree(join(STOW_DIR, package))
+        steeve.unstow(package)
+        shutil.rmtree(join(steeve.dir, package))
     else:
-        current = current_version(package)
+        current = steeve.current_version(package)
         if version == current:
-            unstow(package)
-        shutil.rmtree(join(STOW_DIR, package, version))
+            steeve.unstow(package)
+        shutil.rmtree(join(steeve.dir, package, version))
 
-    # Remove empty package folder
-    if not os.listdir(join(STOW_DIR, package)):
-        os.rmdir(join(STOW_DIR, package))
+        # Remove empty package folder
+        if not os.listdir(join(steeve.dir, package)):
+            os.rmdir(join(steeve.dir, package))
 
 
 @cli.command(help="Stow given package version into target dir.")
 @click.argument('package', callback=validate_dir)
 @click.argument('version', callback=validate_dir)
-def use(package, version):
-    if not os.path.exists(join(STOW_DIR, package, version)):
+@click.pass_obj
+def use(steeve, package, version):
+    if not os.path.exists(join(steeve.dir, package, version)):
         click.echo("package '{}/{}' is not installed"
                    .format(package, version),
                    err=True)
         return
 
-    unstow(package)
-    link_current(package, version)
-    stow(package)
+    steeve.unstow(package)
+    steeve.link_current(package, version)
+    steeve.stow(package)
 
 
 @cli.command(help="Delete stowed symlinks.")
 @click.argument('package', callback=validate_dir)
-def unuse(package):
-    unstow(package)
+@click.pass_obj
+def unuse(steeve, package):
+    steeve.unstow(package)
 
 
 @cli.command(help="List packages or package versions.")
 @click.argument('package', required=False, callback=validate_dir)
-def ls(package):
+@click.pass_obj
+def ls(steeve, package):
     if package is None:
-        packages = os.listdir(STOW_DIR)
+        packages = os.listdir(steeve.dir)
         for package in packages:
             click.echo(package)
     else:
         try:
-            versions = os.listdir(join(STOW_DIR, package))
+            versions = os.listdir(join(steeve.dir, package))
         except OSError as err:
             if err.errno == errno.ENOENT:
-                click.echo("no such package '{}'".format(package),
+                click.echo("no such package '{}'"
+                           .format(package),
                            err=True)
                 return
             else:
@@ -114,71 +123,76 @@ def ls(package):
             versions.remove('current')
         except ValueError:
             pass
-        current = current_version(package)
+        current = steeve.current_version(package)
         for version in versions:
             used = '* ' if current == version else '  '
             click.echo(used + version)
 
 
-def link_current(package, version):
-    current = join(STOW_DIR, package, 'current')
-    try:
-        os.remove(current)
-    except OSError as err:
-        if err.errno != errno.ENOENT:
-            raise
-    os.symlink(join(STOW_DIR, package, version), current)
+StowOptionsTuple = namedtuple('StowOptionsTuple', 'dir, target, no_folding')
 
 
-def current_version(package):
-    try:
-        dst = os.readlink(join(STOW_DIR, package, 'current'))
-    except OSError as err:
-        if err.errno == errno.ENOENT:
-            return None
-        else:
-            raise
-    return os.path.basename(dst)
+class Steeve(StowOptionsTuple):
+    def link_current(self, package, version):
+        current = join(self.dir, package, 'current')
+        try:
+            os.remove(current)
+        except OSError as err:
+            if err.errno != errno.ENOENT:
+                raise
+        os.symlink(join(self.dir, package, version), current)
 
+    def current_version(self, package):
+        try:
+            dst = os.readlink(join(self.dir, package, 'current'))
+        except OSError as err:
+            if err.errno == errno.ENOENT:
+                return None
+            else:
+                raise
+        return os.path.basename(dst)
 
-def stow(package):
-    try:
-        subprocess.check_output([
-            'stow',
-            '-t', STOW_TARGET,
-            '-d', join(STOW_DIR, package),
-            'current'])
-    except subprocess.CalledProcessError as err:
-        click.echo('stow returned code {}'
-                   .format(err.returncode),
-                   err=True)
+    def stow(self, package):
+        try:
+            args = [
+                'stow',
+                '-t', self.target,
+                '-d', join(self.dir, package),
+                'current'
+            ]
+            if self.no_folding:
+                args.insert(1, '--no-folding')
+            subprocess.check_output(args)
+        except subprocess.CalledProcessError as err:
+            click.echo('stow returned code {}'
+                       .format(err.returncode),
+                       err=True)
 
-
-def unstow(package):
-    if current_version(package) is None:
-        return
-    try:
-        subprocess.check_output([
-            'stow',
-            '-t', STOW_TARGET,
-            '-d', join(STOW_DIR, package),
-            '-D',
-            'current'])
-    except subprocess.CalledProcessError as err:
-        click.echo('stow returned code {}'
-                   .format(err.returncode),
-                   err=True)
-    os.remove(join(STOW_DIR, package, 'current'))
+    def unstow(self, package):
+        if self.current_version(package) is None:
+            return
+        try:
+            subprocess.check_output([
+                'stow',
+                '-t', self.target,
+                '-d', join(self.dir, package),
+                '-D',
+                'current'])
+        except subprocess.CalledProcessError as err:
+            click.echo('stow returned code {}'
+                       .format(err.returncode),
+                       err=True)
+        os.remove(join(self.dir, package, 'current'))
 
 
 def makedirs(name, mode=0o777, exist_ok=False):
     """makedirs(name [, mode=0o777][, exist_ok=False])
 
-    Super-mkdir; create a leaf directory and all intermediate ones.  Works like
-    mkdir, except that any intermediate path segment (not just the rightmost)
-    will be created if it does not exist. If the target directory already
-    exists, raise an OSError if exist_ok is False. Otherwise no exception is
-    raised.  This is recursive.
+    Super-mkdir; create a leaf directory and all intermediate ones.
+    Works like mkdir, except that any intermediate path segment (not
+    just the rightmost) will be created if it does not exist.  If the
+    target directory already exists, raise an OSError if exist_ok is
+    False. Otherwise no exception is raised.  This is recursive.
 
     Shamelessly copied from Python 3.4.2 os module.
     """
@@ -195,7 +209,7 @@ def makedirs(name, mode=0o777, exist_ok=False):
         cdir = os.curdir
         if isinstance(tail, bytes):
             cdir = bytes(os.curdir, 'ASCII')
-        if tail == cdir:           # xxx/newdir/. exists if xxx/newdir exists
+        if tail == cdir:  # xxx/newdir/. exists if xxx/newdir exists
             return
     try:
         os.mkdir(name, mode)
