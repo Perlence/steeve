@@ -1,15 +1,16 @@
+# -*- encoding: UTF-8 -*
 from setuptools import setup
 
-# with open('README.md') as fp:
-#     README = fp.read()
+with open('README.md') as fp:
+    README = fp.read()
 
 setup(
     name='steeve',
-    version='1.0',
+    version='0.1',
     author='Sviatoslav Abakumov',
     author_email='dust.harvesting@gmail.com',
-    # description='',
-    # long_description=README,
+    description=u'Tiny GNU Stow–based package manager',
+    long_description=README,
     url='https://github.com/Perlence/steeve',
     download_url='https://github.com/Perlence/steeve/archive/master.zip',
     py_modules=['steeve'],
@@ -23,7 +24,14 @@ setup(
         'click',
     ],
     classifiers=[
-        # 'Development Status :: 3 - Stable',
-        # 'Environment :: Console',
+        'Development Status :: 4 - Beta',
+        'Environment :: Console',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Topic :: System :: Installation/Setup',
+        'Topic :: System :: Systems Administration',
+        'Topic :: Utilities',
     ]
 )
