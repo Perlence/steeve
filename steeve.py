@@ -13,16 +13,24 @@ STOW_DIR = '/usr/local/stow'
 STOW_TARGET = '/usr/local'
 
 
+def validate_dir(ctx, param, value):
+    if '/' in value or '\0' in value:
+        raise click.BadParameter("must be a directory name."
+                                 .format(param))
+    return value
+
+
 @click.group()
 def cli():
     pass
 
 
 @cli.command(help="Install package from given folder.")
-@click.argument('package')
-@click.argument('version')
+@click.argument('package', callback=validate_dir)
+@click.argument('version', callback=validate_dir)
 @click.argument('path')
-@click.option('-f', '--force', is_flag=True)
+@click.option('-f', '--force', is_flag=True,
+              help="Rewrite package contents.")
 def install(package, version, path, force):
     package_path = join(STOW_DIR, package)
     package_version_path = join(STOW_DIR, package, version)
@@ -47,8 +55,8 @@ def install(package, version, path, force):
 
 
 @cli.command(help="Remove the whole package or specific version.")
-@click.argument('package')
-@click.argument('version', required=False)
+@click.argument('package', callback=validate_dir)
+@click.argument('version', required=False, callback=validate_dir)
 def uninstall(package, version):
     if version is None:
         unstow(package)
@@ -64,14 +72,14 @@ def uninstall(package, version):
 
 
 @cli.command(help="Delete stowed symlinks.")
-@click.argument('package')
+@click.argument('package', callback=validate_dir)
 def unuse(package):
     unstow(package)
 
 
 @cli.command(help="Stow given package version into target dir.")
-@click.argument('package')
-@click.argument('version')
+@click.argument('package', callback=validate_dir)
+@click.argument('version', callback=validate_dir)
 def use(package, version):
     unstow(package)
     link_current(package, version)
@@ -79,7 +87,7 @@ def use(package, version):
 
 
 @cli.command(help="List packages or package versions.")
-@click.argument('package', required=False)
+@click.argument('package', required=False, callback=validate_dir)
 def ls(package):
     if package is None:
         packages = os.listdir(STOW_DIR)
