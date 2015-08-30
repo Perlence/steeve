@@ -3,7 +3,6 @@ from __future__ import print_function
 from collections import namedtuple
 import errno
 import os
-from os.path import join
 import shutil
 import subprocess
 
@@ -34,11 +33,9 @@ def cli(ctx, dir, target, no_folding):
 @click.argument('package', callback=validate_dir)
 @click.argument('version', callback=validate_dir)
 @click.argument('path')
-@click.option('-f', '--force', is_flag=True,
-              help="Rewrite package contents.")
 @click.pass_obj
-def install(steeve, package, version, path, force):
-    steeve.install(package, version, path, force)
+def install(steeve, package, version, path):
+    steeve.install(package, version, path)
 
 
 @cli.command(help="Remove the whole package or specific version.")
@@ -72,15 +69,12 @@ def ls(steeve, package):
 
 
 class Steeve(namedtuple('Steeve', 'dir target no_folding')):
-    def install(self, package, version, path, force):
-        package_path = join(self.dir, package)
-        package_version_path = join(self.dir, package, version)
-
+    def install(self, package, version, path):
+        makedirs(self.package_path(package), exist_ok=True)
         try:
-            makedirs(package_path, exist_ok=True)
+            shutil.copytree(path, self.package_path(package, version))
         except OSError as err:
-            if (err.errno == errno.EEXIST and os.path.isdir(path) and
-                    not force):
+            if err.errno == errno.EEXIST and os.path.isdir(path):
                 click.echo(err)
                 click.echo("the package '{}/{}' is already installed"
                            .format(package, version),
@@ -88,7 +82,6 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
                 return
             else:
                 raise
-        shutil.copytree(path, package_version_path)
 
         self.unstow(package)
         self.link_current(package, version)
@@ -97,20 +90,20 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
     def uninstall(self, package, version):
         if version is None:
             self.unstow(package)
-            shutil.rmtree(join(self.dir, package))
+            shutil.rmtree(self.package_path(package))
         else:
             current = self.current_version(package)
             if version == current:
                 self.unstow(package)
-            shutil.rmtree(join(self.dir, package, version))
+            shutil.rmtree(self.package_path(package, version))
 
             # Remove empty package folder
-            if not os.listdir(join(self.dir, package)):
-                os.rmdir(join(self.dir, package))
+            if not os.listdir(self.package_path(package)):
+                os.rmdir(self.package_path(package))
 
     def use(self, package, version):
         pass
-        if not os.path.exists(join(self.dir, package, version)):
+        if not os.path.exists(self.package_path(package, version)):
             click.echo("package '{}/{}' is not installed"
                        .format(package, version),
                        err=True)
@@ -127,7 +120,7 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
                 click.echo(package)
         else:
             try:
-                versions = os.listdir(join(self.dir, package))
+                versions = os.listdir(self.package_path(package))
             except OSError as err:
                 if err.errno == errno.ENOENT:
                     click.echo("no such package '{}'"
@@ -146,17 +139,17 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
                 click.echo(used + version)
 
     def link_current(self, package, version):
-        current = join(self.dir, package, 'current')
+        current = self.package_path(package, 'current')
         try:
             os.remove(current)
         except OSError as err:
             if err.errno != errno.ENOENT:
                 raise
-        os.symlink(join(self.dir, package, version), current)
+        os.symlink(self.package_path(package, version), current)
 
     def current_version(self, package):
         try:
-            dst = os.readlink(join(self.dir, package, 'current'))
+            dst = os.readlink(self.package_path(package, 'current'))
         except OSError as err:
             if err.errno == errno.ENOENT:
                 return None
@@ -169,7 +162,7 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
             args = [
                 'stow',
                 '-t', self.target,
-                '-d', join(self.dir, package),
+                '-d', self.package_path(package),
                 'current'
             ]
             if self.no_folding:
@@ -187,14 +180,20 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
             subprocess.check_output([
                 'stow',
                 '-t', self.target,
-                '-d', join(self.dir, package),
+                '-d', self.package_path(package),
                 '-D',
                 'current'])
         except subprocess.CalledProcessError as err:
             click.echo('stow returned code {}'
                        .format(err.returncode),
                        err=True)
-        os.remove(join(self.dir, package, 'current'))
+        os.remove(self.package_path(package, 'current'))
+
+    def package_path(self, package, version=None):
+        if version is None:
+            return os.path.join(self.dir, package)
+        else:
+            return os.path.join(self.dir, package, version)
 
 
 def makedirs(name, mode=0o777, exist_ok=False):
