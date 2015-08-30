@@ -159,7 +159,7 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
             ]
             if self.no_folding:
                 args.insert(1, '--no-folding')
-            subprocess.check_output(args)
+            subprocess.check_call(args)
         except subprocess.CalledProcessError as err:
             click.echo('stow returned code {}'
                        .format(err.returncode),
@@ -169,7 +169,7 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
         if self.current_version(package) is None:
             return
         try:
-            subprocess.check_output([
+            subprocess.check_call([
                 'stow',
                 '-t', self.target,
                 '-d', self.package_path(package),
