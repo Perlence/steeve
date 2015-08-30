@@ -38,26 +38,7 @@ def cli(ctx, dir, target, no_folding):
               help="Rewrite package contents.")
 @click.pass_obj
 def install(steeve, package, version, path, force):
-    package_path = join(steeve.dir, package)
-    package_version_path = join(steeve.dir, package, version)
-
-    try:
-        makedirs(package_path, exist_ok=True)
-    except OSError as err:
-        if (err.errno == errno.EEXIST and os.path.isdir(path) and
-                not force):
-            click.echo(err)
-            click.echo("the package '{}/{}' is already installed"
-                       .format(package, version),
-                       err=True)
-            return
-        else:
-            raise
-    shutil.copytree(path, package_version_path)
-
-    steeve.unstow(package)
-    steeve.link_current(package, version)
-    steeve.stow(package)
+    steeve.install(package, version, path, force)
 
 
 @cli.command(help="Remove the whole package or specific version.")
@@ -65,18 +46,7 @@ def install(steeve, package, version, path, force):
 @click.argument('version', required=False, callback=validate_dir)
 @click.pass_obj
 def uninstall(steeve, package, version):
-    if version is None:
-        steeve.unstow(package)
-        shutil.rmtree(join(steeve.dir, package))
-    else:
-        current = steeve.current_version(package)
-        if version == current:
-            steeve.unstow(package)
-        shutil.rmtree(join(steeve.dir, package, version))
-
-        # Remove empty package folder
-        if not os.listdir(join(steeve.dir, package)):
-            os.rmdir(join(steeve.dir, package))
+    steeve.uninstall(package, version)
 
 
 @cli.command(help="Stow given package version into target dir.")
@@ -84,15 +54,7 @@ def uninstall(steeve, package, version):
 @click.argument('version', callback=validate_dir)
 @click.pass_obj
 def use(steeve, package, version):
-    if not os.path.exists(join(steeve.dir, package, version)):
-        click.echo("package '{}/{}' is not installed"
-                   .format(package, version),
-                   err=True)
-        return
-
-    steeve.unstow(package)
-    steeve.link_current(package, version)
-    steeve.stow(package)
+    steeve.use(package, version)
 
 
 @cli.command(help="Delete stowed symlinks.")
@@ -106,35 +68,83 @@ def unuse(steeve, package):
 @click.argument('package', required=False, callback=validate_dir)
 @click.pass_obj
 def ls(steeve, package):
-    if package is None:
-        packages = os.listdir(steeve.dir)
-        for package in packages:
-            click.echo(package)
-    else:
+    steeve.ls(package)
+
+
+class Steeve(namedtuple('Steeve', 'dir target no_folding')):
+    def install(self, package, version, path, force):
+        package_path = join(self.dir, package)
+        package_version_path = join(self.dir, package, version)
+
         try:
-            versions = os.listdir(join(steeve.dir, package))
+            makedirs(package_path, exist_ok=True)
         except OSError as err:
-            if err.errno == errno.ENOENT:
-                click.echo("no such package '{}'"
-                           .format(package),
+            if (err.errno == errno.EEXIST and os.path.isdir(path) and
+                    not force):
+                click.echo(err)
+                click.echo("the package '{}/{}' is already installed"
+                           .format(package, version),
                            err=True)
                 return
             else:
                 raise
-        try:
-            versions.remove('current')
-        except ValueError:
-            pass
-        current = steeve.current_version(package)
-        for version in versions:
-            used = '* ' if current == version else '  '
-            click.echo(used + version)
+        shutil.copytree(path, package_version_path)
 
+        self.unstow(package)
+        self.link_current(package, version)
+        self.stow(package)
 
-StowOptionsTuple = namedtuple('StowOptionsTuple', 'dir, target, no_folding')
+    def uninstall(self, package, version):
+        if version is None:
+            self.unstow(package)
+            shutil.rmtree(join(self.dir, package))
+        else:
+            current = self.current_version(package)
+            if version == current:
+                self.unstow(package)
+            shutil.rmtree(join(self.dir, package, version))
 
+            # Remove empty package folder
+            if not os.listdir(join(self.dir, package)):
+                os.rmdir(join(self.dir, package))
 
-class Steeve(StowOptionsTuple):
+    def use(self, package, version):
+        pass
+        if not os.path.exists(join(self.dir, package, version)):
+            click.echo("package '{}/{}' is not installed"
+                       .format(package, version),
+                       err=True)
+            return
+
+        self.unstow(package)
+        self.link_current(package, version)
+        self.stow(package)
+
+    def ls(self, package):
+        if package is None:
+            packages = os.listdir(self.dir)
+            for package in packages:
+                click.echo(package)
+        else:
+            try:
+                versions = os.listdir(join(self.dir, package))
+            except OSError as err:
+                if err.errno == errno.ENOENT:
+                    click.echo("no such package '{}'"
+                               .format(package),
+                               err=True)
+                    return
+                else:
+                    raise
+            try:
+                versions.remove('current')
+            except ValueError:
+                pass
+            current = self.current_version(package)
+            for version in versions:
+                used = '* ' if current == version else '  '
+                click.echo(used + version)
+
     def link_current(self, package, version):
         current = join(self.dir, package, 'current')
         try:
