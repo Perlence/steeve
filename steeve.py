@@ -1,11 +1,11 @@
 from __future__ import print_function
 
+from collections import namedtuple
 import errno
 import os
 from os.path import join
 import shutil
 import subprocess
-from collections import namedtuple
 
 import click
 
@@ -17,11 +17,13 @@ def validate_dir(ctx, param, value):
 
 
 @click.group()
-@click.option('-d', '--dir', metavar='DIR', default='/usr/local/stow',
+@click.option('-d', '--dir', envvar='STEEVE_DIR', metavar='DIR',
+              default='/usr/local/stow',
               help="Set location of packages to DIR.")
-@click.option('-t', '--target', metavar='DIR', default='/usr/local',
+@click.option('-t', '--target', envvar='STEEVE_TARGET', metavar='DIR',
+              default='/usr/local',
               help="Set stow target to DIR.")
-@click.option('--no-folding', is_flag=True,
+@click.option('--no-folding', envvar='STEEVE_NO_FOLDING', is_flag=True,
               help="Disable folding of newly stowed directories.")
 @click.pass_context
 def cli(ctx, dir, target, no_folding):
