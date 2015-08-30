@@ -167,4 +167,5 @@ $ sudo steeve uninstall tig
 ## Thanks
 
 Thanks to authors of [GoboLinux](http://gobolinux.org/) from which I borrowed the idea of package structure.
-Thanks to Armin Ronacher and contributors for [Click](http://click.pocoo.org/) which is _*click*_ nice.
+
+Thanks to Armin Ronacher and contributors for [Click](http://click.pocoo.org/) which is _\*click\*_ nice.
