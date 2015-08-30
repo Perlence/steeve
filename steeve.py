@@ -68,7 +68,6 @@ def ls(steeve, package):
 
 class Steeve(namedtuple('Steeve', 'dir target no_folding')):
     def install(self, package, version, path):
-        makedirs(self.package_path(package), exist_ok=True)
         try:
             shutil.copytree(path, self.package_path(package, version))
         except OSError as err:
@@ -192,39 +191,6 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
             return os.path.join(self.dir, package)
         else:
             return os.path.join(self.dir, package, version)
-
-
-def makedirs(name, mode=0o777, exist_ok=False):
-    """makedirs(name [, mode=0o777][, exist_ok=False])
-
-    Super-mkdir; create a leaf directory and all intermediate ones.
-    Works like mkdir, except that any intermediate path segment (not
-    just the rightmost) will be created if it does not exist.  If the
-    target directory already exists, raise an OSError if exist_ok is
-    False. Otherwise no exception is raised.  This is recursive.
-
-    Shamelessly copied from Python 3.4.2 os module.
-    """
-    head, tail = os.path.split(name)
-    if not tail:
-        head, tail = os.path.split(head)
-    if head and tail and not os.path.exists(head):
-        try:
-            makedirs(head, mode, exist_ok)
-        except OSError, e:
-            # be happy if someone already created the path
-            if e.errno != errno.EEXIST:
-                raise
-        cdir = os.curdir
-        if isinstance(tail, bytes):
-            cdir = bytes(os.curdir, 'ASCII')
-        if tail == cdir:  # xxx/newdir/. exists if xxx/newdir exists
-            return
-    try:
-        os.mkdir(name, mode)
-    except OSError as e:
-        if not exist_ok or e.errno != errno.EEXIST or not os.path.isdir(name):
-            raise
 
 
 if __name__ == '__main__':
