@@ -48,14 +48,14 @@ def uninstall(steeve, package, version):
 @click.argument('package', callback=validate_dir)
 @click.argument('version', callback=validate_dir)
 @click.pass_obj
-def use(steeve, package, version):
-    steeve.use(package, version)
+def stow(steeve, package, version):
+    steeve.stow(package, version)
 
 
 @cli.command(help="Delete stowed symlinks.")
 @click.argument('package', callback=validate_dir)
 @click.pass_obj
-def unuse(steeve, package):
+def unstow(steeve, package):
     steeve.unstow(package)
 
 
@@ -79,9 +79,9 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
             else:
                 raise
 
-        self.use(package, version)
+        self.stow(package, version)
 
-    def uninstall(self, package, version):
+    def uninstall(self, package, version=None):
         if version is None:
             self.unstow(package)
             try:
@@ -112,7 +112,7 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
             if not os.listdir(self.package_path(package)):
                 os.rmdir(self.package_path(package))
 
-    def use(self, package, version):
+    def stow(self, package, version):
         if not os.path.exists(self.package_path(package, version)):
             click.echo("package '{}/{}' is not installed"
                        .format(package, version),
@@ -121,7 +121,36 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
 
         self.unstow(package)
         self.link_current(package, version)
-        self.stow(package)
+        try:
+            args = [
+                'stow',
+                '-t', self.target,
+                '-d', self.package_path(package),
+                'current'
+            ]
+            if self.no_folding:
+                args.insert(1, '--no-folding')
+            subprocess.check_call(args)
+        except subprocess.CalledProcessError as err:
+            click.echo('stow returned code {}'
+                       .format(err.returncode),
+                       err=True)
+
+    def unstow(self, package):
+        if self.current_version(package) is None:
+            return
+        try:
+            subprocess.check_call([
+                'stow',
+                '-t', self.target,
+                '-d', self.package_path(package),
+                '-D',
+                'current'])
+        except subprocess.CalledProcessError as err:
+            click.echo('stow returned code {}'
+                       .format(err.returncode),
+                       err=True)
+        os.remove(self.package_path(package, 'current'))
 
     def ls(self, package):
         if package is None:
@@ -173,38 +202,6 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
             else:
                 raise
         return os.path.basename(dst.rstrip('/'))
-
-    def stow(self, package):
-        try:
-            args = [
-                'stow',
-                '-t', self.target,
-                '-d', self.package_path(package),
-                'current'
-            ]
-            if self.no_folding:
-                args.insert(1, '--no-folding')
-            subprocess.check_call(args)
-        except subprocess.CalledProcessError as err:
-            click.echo('stow returned code {}'
-                       .format(err.returncode),
-                       err=True)
-
-    def unstow(self, package):
-        if self.current_version(package) is None:
-            return
-        try:
-            subprocess.check_call([
-                'stow',
-                '-t', self.target,
-                '-d', self.package_path(package),
-                '-D',
-                'current'])
-        except subprocess.CalledProcessError as err:
-            click.echo('stow returned code {}'
-                       .format(err.returncode),
-                       err=True)
-        os.remove(self.package_path(package, 'current'))
 
     def package_path(self, package, version=None):
         if version is None:
