@@ -22,7 +22,7 @@ def validate_dir(ctx, param, value):
               help="Set stow target to DIR.")
 @click.option('--no-folding', envvar='STEEVE_NO_FOLDING', is_flag=True,
               help="Disable folding of newly stowed directories.")
-@click.option('-v', '--verbose', count=True,
+@click.option('-v', '--verbose', envvar='STEEVE_VERBOSE', count=True,
               help="Increase verbosity")
 @click.pass_context
 def cli(ctx, dir, target, no_folding, verbose):
