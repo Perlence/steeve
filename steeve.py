@@ -88,14 +88,14 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
             shutil.copytree(path, self.package_path(package, version))
         except OSError as err:
             if err.errno == errno.ENOENT:
-                click.echo("source path '{}' does not exist"
-                           .format(path),
-                           err=True)
+                click.secho("source path '{}' does not exist"
+                            .format(path),
+                            err=True, fg='red')
                 return
             elif err.errno == errno.EEXIST and os.path.isdir(path):
-                click.echo("the package '{}/{}' is already installed"
-                           .format(package, version),
-                           err=True)
+                click.secho("the package '{}/{}' is already installed"
+                            .format(package, version),
+                            err=True, fg='red')
                 return
             else:
                 raise
@@ -109,9 +109,9 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
                 shutil.rmtree(self.package_path(package))
             except OSError as err:
                 if err.errno == errno.ENOENT:
-                    click.echo("package '{}' does not exist"
-                               .format(package),
-                               err=True)
+                    click.secho("package '{}' does not exist"
+                                .format(package),
+                                err=True, fg='red')
                     return
                 else:
                     raise
@@ -122,9 +122,9 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
                 shutil.rmtree(self.package_path(package, version))
             except OSError as err:
                 if err.errno == errno.ENOENT:
-                    click.echo("package '{}/{}' is not installed"
-                               .format(package, version),
-                               err=True)
+                    click.secho("package '{}/{}' is not installed"
+                                .format(package, version),
+                                err=True, fg='red')
                     return
                 else:
                     raise
@@ -139,9 +139,9 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
 
     def stow(self, package, version):
         if not os.path.exists(self.package_path(package, version)):
-            click.echo("package '{}/{}' is not installed"
-                       .format(package, version),
-                       err=True)
+            click.secho("package '{}/{}' is not installed"
+                        .format(package, version),
+                        err=True, fg='red')
             return
 
         self.unstow(package)
@@ -157,9 +157,9 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
                 args.insert(1, '--no-folding')
             subprocess.check_call(args)
         except subprocess.CalledProcessError as err:
-            click.echo('stow returned code {}'
-                       .format(err.returncode),
-                       err=True)
+            click.secho('stow returned code {}'
+                        .format(err.returncode),
+                        err=True, fg='red')
 
     def unstow(self, package):
         if self.current_version(package) is None:
@@ -172,17 +172,17 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
                 '-D',
                 'current'])
         except subprocess.CalledProcessError as err:
-            click.echo('stow returned code {}'
-                       .format(err.returncode),
-                       err=True)
+            click.secho('stow returned code {}'
+                        .format(err.returncode),
+                        err=True, fg='red')
         os.remove(self.package_path(package, 'current'))
 
     def restow(self, package):
         version = self.current_version(package)
         if version is None:
-            click.echo("package '{}' is not stowed, unable to unstow"
-                       .format(package),
-                       err=True)
+            click.secho("package '{}' is not stowed"
+                        .format(package),
+                        err=True, fg='red')
             return
         self.unstow(package)
         self.stow(package, version)
@@ -204,9 +204,9 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
                 versions = os.listdir(self.package_path(package))
             except OSError as err:
                 if err.errno == errno.ENOENT:
-                    click.echo("no such package '{}'"
-                               .format(package),
-                               err=True)
+                    click.secho("no such package '{}'"
+                                .format(package),
+                                err=True, fg='red')
                     return
                 else:
                     raise
