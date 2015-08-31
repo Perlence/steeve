@@ -90,14 +90,20 @@ $ sudo make install prefix=/usr/local/stow/tig/2.1.1
 Finally, stow tig 2.1.1 into `/usr/local` with *steeve*:
 
 ```bash
-$ sudo steeve use tig 2.1.1
+$ sudo steeve stow tig 2.1.1
 ```
 
-Under the covers `steeve use` creates a symbolic link to current version and runs `stow` to link contents of `current` into `/usr/local`:
+Under the covers `steeve stow` creates a symbolic link to current version and runs `stow` to link contents of `current` into `/usr/local`:
 
 ```bash
 $ sudo ln -s /usr/local/stow/tig/2.1.1 /usr/local/stow/tig/current
 $ sudo stow -t /usr/local -d tig current
+```
+
+To restow symbolic links, simply:
+
+```bash
+$ sudo steeve restow tig
 ```
 
 Also *steeve* can manage binary distributions. For instance, let's install Node.js binaries:
@@ -125,10 +131,18 @@ $ sudo steeve install node 0.12.7 ./node-v0.12.7-linux-x64
 
 This will copy folder contents to `/usr/local/stow/node/0.12.7`, delete stowed files from current version if any, link 0.12.7 to current, and stow files into `/usr/local`.
 
-To delete stowed files, run *steeve* with command `unuse`:
+If you forgot to install some files, you can `reinstall` the package:
 
 ```bash
-$ sudo steeve unuse tig
+$ sudo steeve reinstall node 0.12.7 ./node-v0.12.7-linux-x64
+```
+
+It's achieved by uninstalling the package followed by installing it again.
+
+To delete stowed files, run *steeve* with command `unstow`:
+
+```bash
+$ sudo steeve unstow tig
 ```
 
 To list packages, run command `ls` without arguments:
