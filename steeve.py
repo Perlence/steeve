@@ -84,11 +84,29 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
     def uninstall(self, package, version):
         if version is None:
             self.unstow(package)
-            shutil.rmtree(self.package_path(package))
+            try:
+                shutil.rmtree(self.package_path(package))
+            except OSError as err:
+                if err.errno == errno.ENOENT:
+                    click.echo("package '{}' does not exist"
+                               .format(package),
+                               err=True)
+                    return
+                else:
+                    raise
         else:
             if version == self.current_version(package):
                 self.unstow(package)
-            shutil.rmtree(self.package_path(package, version))
+            try:
+                shutil.rmtree(self.package_path(package, version))
+            except OSError as err:
+                if err.errno == errno.ENOENT:
+                    click.echo("package '{}/{}' is not installed"
+                               .format(package, version),
+                               err=True)
+                    return
+                else:
+                    raise
 
             # Remove empty package folder
             if not os.listdir(self.package_path(package)):
@@ -107,7 +125,14 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
 
     def ls(self, package):
         if package is None:
-            packages = os.listdir(self.dir)
+            try:
+                packages = os.listdir(self.dir)
+            except OSError as err:
+                if err.errno == errno.ENOENT:
+                    return
+                else:
+                    raise
+
             for package in packages:
                 click.echo(package)
         else:
