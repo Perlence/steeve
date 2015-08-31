@@ -147,7 +147,7 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
                 return None
             else:
                 raise
-        return os.path.basename(dst)
+        return os.path.basename(dst.rstrip('/'))
 
     def stow(self, package):
         try:
