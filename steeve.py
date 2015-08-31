@@ -22,9 +22,11 @@ def validate_dir(ctx, param, value):
               help="Set stow target to DIR.")
 @click.option('--no-folding', envvar='STEEVE_NO_FOLDING', is_flag=True,
               help="Disable folding of newly stowed directories.")
+@click.option('-v', '--verbose', count=True,
+              help="Increase verbosity")
 @click.pass_context
-def cli(ctx, dir, target, no_folding):
-    ctx.obj = Steeve(dir, target, no_folding)
+def cli(ctx, dir, target, no_folding, verbose):
+    ctx.obj = Steeve(dir, target, no_folding, verbose)
 
 
 @cli.command(help="Install package from given folder.")
@@ -82,7 +84,7 @@ def ls(steeve, package):
     steeve.ls(package)
 
 
-class Steeve(namedtuple('Steeve', 'dir target no_folding')):
+class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
     def install(self, package, version, path):
         try:
             shutil.copytree(path, self.package_path(package, version))
@@ -147,15 +149,18 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
         self.unstow(package)
         self.link_current(package, version)
         try:
-            args = [
-                'stow',
+            options = []
+            if self.no_folding:
+                options.append('--no-folding')
+            if self.verbose > 0:
+                options.append('--verbose={}'.format(self.verbose))
+            subprocess.check_call([
+                'stow'
+            ] + options + [
                 '-t', self.target,
                 '-d', self.package_path(package),
                 'current'
-            ]
-            if self.no_folding:
-                args.insert(1, '--no-folding')
-            subprocess.check_call(args)
+            ])
         except subprocess.CalledProcessError as err:
             click.secho('stow returned code {}'
                         .format(err.returncode),
