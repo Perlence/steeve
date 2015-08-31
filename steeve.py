@@ -71,7 +71,12 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
         try:
             shutil.copytree(path, self.package_path(package, version))
         except OSError as err:
-            if err.errno == errno.EEXIST and os.path.isdir(path):
+            if err.errno == errno.ENOENT:
+                click.echo("source path '{}' does not exist"
+                           .format(path),
+                           err=True)
+                return
+            elif err.errno == errno.EEXIST and os.path.isdir(path):
                 click.echo("the package '{}/{}' is already installed"
                            .format(package, version),
                            err=True)
