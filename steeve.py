@@ -36,6 +36,15 @@ def install(steeve, package, version, path):
     steeve.install(package, version, path)
 
 
+@cli.command(help="Reinstall package from given folder.")
+@click.argument('package', callback=validate_dir)
+@click.argument('version', callback=validate_dir)
+@click.argument('path')
+@click.pass_obj
+def reinstall(steeve, package, version, path):
+    steeve.install(package, version, path)
+
+
 @cli.command(help="Remove the whole package or specific version.")
 @click.argument('package', callback=validate_dir)
 @click.argument('version', required=False, callback=validate_dir)
@@ -57,6 +66,13 @@ def stow(steeve, package, version):
 @click.pass_obj
 def unstow(steeve, package):
     steeve.unstow(package)
+
+
+@cli.command(help="Restow (like unstow followed by stow).")
+@click.argument('package', callback=validate_dir)
+@click.pass_obj
+def restow(steeve, package):
+    steeve.restow(package)
 
 
 @cli.command(help="List packages or package versions.")
@@ -117,6 +133,10 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
             if not os.listdir(self.package_path(package)):
                 os.rmdir(self.package_path(package))
 
+    def reinstall(self, package, version, path):
+        self.uninstall(package, version)
+        self.install(package, version, path)
+
     def stow(self, package, version):
         if not os.path.exists(self.package_path(package, version)):
             click.echo("package '{}/{}' is not installed"
@@ -156,6 +176,16 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding')):
                        .format(err.returncode),
                        err=True)
         os.remove(self.package_path(package, 'current'))
+
+    def restow(self, package):
+        version = self.current_version(package)
+        if version is None:
+            click.echo("package '{}' is not stowed, unable to unstow"
+                       .format(package),
+                       err=True)
+            return
+        self.unstow(package)
+        self.stow(package, version)
 
     def ls(self, package):
         if package is None:
