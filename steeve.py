@@ -10,6 +10,8 @@ import click
 def validate_dir(ctx, param, value):
     if value is not None and ('/' in value or '\0' in value):
         raise click.BadParameter("must be a directory name.")
+    if param.name == 'version' and value == 'current':
+        raise click.BadParameter("must not be 'current'.")
     return value
 
 
