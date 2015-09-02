@@ -1,7 +1,7 @@
 # -*- encoding: UTF-8 -*
 from setuptools import setup
 
-with open('README.md') as fp:
+with open('README.rst') as fp:
     README = fp.read()
 
 setup(
