@@ -81,9 +81,11 @@ def restow(steeve, package):
 
 @cli.command(help="List packages or package versions.")
 @click.argument('package', required=False, callback=validate_dir)
+@click.option('-q', '--quiet', is_flag=True,
+              help="Display packages or versions without formatting.")
 @click.pass_obj
-def ls(steeve, package):
-    steeve.ls(package)
+def ls(steeve, package, quiet):
+    steeve.ls(package, quiet)
 
 
 class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
@@ -194,7 +196,7 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
         self.unstow(package)
         self.stow(package, version)
 
-    def ls(self, package):
+    def ls(self, package, quiet):
         if package is None:
             try:
                 packages = os.listdir(self.dir)
@@ -223,7 +225,10 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
                 pass
             current = self.current_version(package)
             for version in versions:
-                used = '* ' if current == version else '  '
+                if not quiet:
+                    used = '* ' if current == version else '  '
+                else:
+                    used = ''
                 click.echo(used + version)
 
     def link_current(self, package, version):
