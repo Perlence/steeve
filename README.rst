@@ -71,17 +71,19 @@ Dependencies
 Installation
 ============
 
-1. Clone the repository:
+Get the package from PyPI:
 
-   .. code-block:: bash
+.. code-block:: bash
 
-      $ git clone https://github.com/Perlence/steeve.git
+   $ pip install steeve
 
-2. Install the package:
+Or get the latest development version:
 
-   .. code-block:: bash
+.. code-block:: bash
 
-      $ pip install .
+   $ git clone https://github.com/Perlence/steeve.git
+   $ cd steeve
+   $ pip install --editable .
 
 
 Usage
