@@ -85,9 +85,9 @@ Or get the latest development version:
    $ cd steeve
    $ pip install --editable .
 
-To install bash completion, download the `script <completion/steeve.bash>`_ and source it from your ``.bashrc``.
+To install bash completion, download the `script <https://github.com/Perlence/steeve/blob/master/completion/steeve.bash>`_ and source it from your ``.bashrc``.
 
-To install fish completion, download the `script <completion/steeve.fish>`_ and put it in ``~/.config/fish/completions``.
+To install fish completion, download the `script <https://github.com/Perlence/steeve/blob/master/completion/steeve.fish>`_ and put it in ``~/.config/fish/completions``.
 
 
 Usage
