@@ -31,7 +31,7 @@ def check_stow():
 @click.option('--no-folding', envvar='STEEVE_NO_FOLDING', is_flag=True,
               help="Disable folding of newly stowed directories.")
 @click.option('-v', '--verbose', envvar='STEEVE_VERBOSE', count=True,
-              help="Increase verbosity")
+              help="Increase verbosity.")
 @click.pass_context
 def cli(ctx, dir, target, no_folding, verbose):
     ctx.obj = Steeve(dir, target, no_folding, verbose)
