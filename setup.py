@@ -21,7 +21,8 @@ setup(
         ],
     },
     install_requires=[
-        'click',
+        'click>=5,<6',
+        'whichcraft',
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
