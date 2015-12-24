@@ -2,7 +2,7 @@
 steeve
 ======
 
-Tiny `GNU Stow <https://www.gnu.org/software/stow/>`_–based package manager.
+Tiny `GNU Stow <https://www.gnu.org/software/stow/>`__–based package manager.
 
 .. contents::
 
@@ -56,7 +56,7 @@ Tree Folding
 
 The main gotcha is GNU Stow's tree folding mechanism.  Please, get accustomed to
 it by reading chapter `Installing Packages
-<http://www.gnu.org/software/stow/manual/stow.html#Installing-Packages>`_ of GNU
+<http://www.gnu.org/software/stow/manual/stow.html#Installing-Packages>`__ of GNU
 Stow manual.  You can disable folding by setting environment variable
 ``STEEVE_NO_FOLDING`` or passing ``--no-folding`` option.
 
@@ -86,11 +86,11 @@ Or get the latest development version:
    $ pip install --editable .
 
 To install bash completion, download the `script
-<https://github.com/Perlence/steeve/blob/master/completion/steeve.bash>`_ and
+<https://github.com/Perlence/steeve/blob/master/completion/steeve.bash>`__ and
 source it from your ``.bashrc``.
 
 To install fish completion, download the `script
-<https://github.com/Perlence/steeve/blob/master/completion/steeve.fish>`_ and
+<https://github.com/Perlence/steeve/blob/master/completion/steeve.fish>`__ and
 put it in ``~/.config/fish/completions``.
 
 
@@ -110,7 +110,7 @@ To see usage of a command, run:
    $ steeve COMMAND --help
 
 *steeve* helps you install manually built programs.  For example, to install
-`tig <http://jonas.nitro.dk/tig/>`_, text-mode interface for git, first download
+`tig <http://jonas.nitro.dk/tig/>`__, text-mode interface for git, first download
 the release tarball:
 
 .. code-block:: bash
@@ -226,8 +226,8 @@ only a package name:
 Thanks
 ======
 
-Thanks to authors of `GoboLinux <http://gobolinux.org/>`_ from which I borrowed
+Thanks to authors of `GoboLinux <http://gobolinux.org/>`__ from which I borrowed
 the idea of package structure.
 
-Thanks to Armin Ronacher and contributors for `Click <http://click.pocoo.org/>`_
-which is *\*click\** nice.
+Thanks to Armin Ronacher and contributors for `Click
+<http://click.pocoo.org/>`__ which is *\*click\** nice.
