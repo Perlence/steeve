@@ -93,7 +93,7 @@ def stow(steeve, package, version):
 @click.pass_obj
 def unstow(steeve, package):
     check_stow()
-    steeve.unstow(package)
+    steeve.unstow(package, strict=True)
 
 
 @cli.command(help="Restow (like unstow followed by stow).")
@@ -191,9 +191,14 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
                 'stow returned code {}'
                 .format(err.returncode))
 
-    def unstow(self, package):
+    def unstow(self, package, strict=False):
         if self.current_version(package) is None:
-            return
+            if strict:
+                raise click.ClickException(
+                    "package '{}' is not stowed"
+                    .format(package))
+            else:
+                return
         try:
             subprocess.check_call([
                 'stow',
