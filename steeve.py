@@ -122,12 +122,10 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
                 raise click.ClickException(
                     "source path '{}' does not exist"
                     .format(path))
-                return
             elif err.errno == errno.EEXIST and os.path.isdir(path):
                 raise click.ClickException(
                     "the package '{}/{}' is already installed"
                     .format(package, version))
-                return
             else:
                 raise
 
@@ -143,7 +141,6 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
                     raise click.ClickException(
                         "package '{}' does not exist"
                         .format(package))
-                    return
                 else:
                     raise
         else:
@@ -156,7 +153,6 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
                     raise click.ClickException(
                         "package '{}/{}' is not installed"
                         .format(package, version))
-                    return
                 else:
                     raise
 
@@ -173,7 +169,6 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
             raise click.ClickException(
                 "package '{}/{}' is not installed"
                 .format(package, version))
-            return
 
         self.unstow(package)
         self.link_current(package, version)
@@ -218,7 +213,6 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
             raise click.ClickException(
                 "package '{}' is not stowed"
                 .format(package))
-            return
         self.stow(package, version)
 
     def ls(self, package, quiet):
@@ -241,7 +235,6 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
                     raise click.ClickException(
                         "no such package '{}'"
                         .format(package))
-                    return
                 else:
                     raise
             try:
