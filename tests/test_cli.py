@@ -21,3 +21,10 @@ def test_no_stow(runner):
     result = runner.invoke(steeve.cli, ['ls'])
     assert result.exit_code == 0
     assert 'GNU Stow is not installed' not in result.output
+
+
+def test_valid_version(runner):
+    """Must fail when given version is 'current'"""
+    result = runner.invoke(steeve.cli, ['stow', 'foo', 'current'])
+    assert result.exit_code == 2
+    assert "must not be 'current'" in result.output
