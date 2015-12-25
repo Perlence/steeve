@@ -5,7 +5,7 @@ from click.testing import CliRunner
 
 
 @pytest.yield_fixture
-def runner(scope='function'):
+def runner():
     runner = CliRunner()
     with runner.isolated_filesystem() as target:
         dir = os.path.join(target, 'stow')

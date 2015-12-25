@@ -263,6 +263,9 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
                 raise
         os.symlink(self.package_path(package, version), current)
 
+    def remove_current(self, package):
+        os.remove(self.package_path(package, 'current'))
+
     def current_version(self, package):
         try:
             dst = os.readlink(self.package_path(package, 'current'))
@@ -271,16 +274,13 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
                 return None
             else:
                 raise
-        return os.path.basename(dst.rstrip('/'))
+        return os.path.basename(dst.rstrip(os.path.sep))
 
     def package_path(self, package, version=None):
         if version is None:
             return os.path.join(self.dir, package)
         else:
             return os.path.join(self.dir, package, version)
-
-    def remove_current(self, package):
-        os.remove(self.package_path(package, 'current'))
 
 
 if __name__ == '__main__':
