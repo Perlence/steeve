@@ -45,3 +45,15 @@ def test_no_stow(runner):
     result = runner.invoke(steeve.cli, ['ls'])
     assert result.exit_code == 0
     assert 'GNU Stow is not installed' not in result.output
+
+
+def test_clean_up(runner, foo_package):
+    """Test steeve removes 'current' link when stow failed"""
+    # Make dirty target
+    os.mkdir('bin')
+    with open(os.path.join('bin', 'foo'), 'w'):
+        pass
+
+    result = runner.invoke(steeve.cli, ['stow', 'foo', '1.0'])
+    assert result.exit_code == 1
+    assert not os.path.exists(os.path.join('stow', 'foo', 'current'))

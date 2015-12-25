@@ -191,6 +191,7 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
                 'current'
             ])
         except subprocess.CalledProcessError as err:
+            self.remove_current(package)
             raise click.ClickException(
                 'stow returned code {}'
                 .format(err.returncode))
@@ -209,7 +210,7 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
             raise click.ClickException(
                 'stow returned code {}'
                 .format(err.returncode))
-        os.remove(self.package_path(package, 'current'))
+        self.remove_current(package)
 
     def restow(self, package):
         version = self.current_version(package)
@@ -279,6 +280,9 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
             return os.path.join(self.dir, package)
         else:
             return os.path.join(self.dir, package, version)
+
+    def remove_current(self, package):
+        os.remove(self.package_path(package, 'current'))
 
 
 if __name__ == '__main__':
