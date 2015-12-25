@@ -21,6 +21,17 @@ def check_stow():
         raise click.ClickException("GNU Stow is not installed")
 
 
+required_package_argument = click.argument(
+    'package', callback=validate_dir)
+package_argument = click.argument(
+    'package', required=False, callback=validate_dir)
+required_version_argument = click.argument(
+    'version', callback=validate_dir)
+version_argument = click.argument(
+    'version', required=False, callback=validate_dir)
+path_argument = click.argument('path')
+
+
 @click.group()
 @click.option('-d', '--dir', envvar='STEEVE_DIR', metavar='DIR',
               default='/usr/local/stow',
@@ -38,9 +49,9 @@ def cli(ctx, dir, target, no_folding, verbose):
 
 
 @cli.command(help="Install package from given folder.")
-@click.argument('package', callback=validate_dir)
-@click.argument('version', callback=validate_dir)
-@click.argument('path')
+@required_package_argument
+@required_version_argument
+@path_argument
 @click.pass_obj
 def install(steeve, package, version, path):
     check_stow()
@@ -48,9 +59,9 @@ def install(steeve, package, version, path):
 
 
 @cli.command(help="Reinstall package from given folder.")
-@click.argument('package', callback=validate_dir)
-@click.argument('version', callback=validate_dir)
-@click.argument('path')
+@required_package_argument
+@required_version_argument
+@path_argument
 @click.pass_obj
 def reinstall(steeve, package, version, path):
     check_stow()
@@ -58,8 +69,8 @@ def reinstall(steeve, package, version, path):
 
 
 @cli.command(help="Remove the whole package or specific version.")
-@click.argument('package', callback=validate_dir)
-@click.argument('version', required=False, callback=validate_dir)
+@required_package_argument
+@version_argument
 @click.pass_obj
 def uninstall(steeve, package, version):
     check_stow()
@@ -67,8 +78,8 @@ def uninstall(steeve, package, version):
 
 
 @cli.command(help="Stow given package version into target dir.")
-@click.argument('package', callback=validate_dir)
-@click.argument('version', callback=validate_dir)
+@required_package_argument
+@required_version_argument
 @click.pass_obj
 def stow(steeve, package, version):
     check_stow()
@@ -76,7 +87,7 @@ def stow(steeve, package, version):
 
 
 @cli.command(help="Delete stowed symlinks.")
-@click.argument('package', callback=validate_dir)
+@required_package_argument
 @click.pass_obj
 def unstow(steeve, package):
     check_stow()
@@ -84,7 +95,7 @@ def unstow(steeve, package):
 
 
 @cli.command(help="Restow (like unstow followed by stow).")
-@click.argument('package', callback=validate_dir)
+@required_package_argument
 @click.pass_obj
 def restow(steeve, package):
     check_stow()
@@ -92,7 +103,7 @@ def restow(steeve, package):
 
 
 @cli.command(help="List packages or package versions.")
-@click.argument('package', required=False, callback=validate_dir)
+@package_argument
 @click.option('-q', '--quiet', is_flag=True,
               help="Display packages or versions without formatting.")
 @click.pass_obj
