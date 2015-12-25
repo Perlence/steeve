@@ -37,14 +37,16 @@ path_argument = click.argument('path')
               default='/usr/local/stow',
               help="Set location of packages to DIR.")
 @click.option('-t', '--target', envvar='STEEVE_TARGET', metavar='DIR',
-              default='/usr/local',
-              help="Set stow target to DIR.")
+              default=None,
+              help="Set stow target to DIR (default is parent of stow dir).")
 @click.option('--no-folding', envvar='STEEVE_NO_FOLDING', is_flag=True,
               help="Disable folding of newly stowed directories.")
 @click.option('-v', '--verbose', envvar='STEEVE_VERBOSE', count=True,
               help="Increase verbosity.")
 @click.pass_context
 def cli(ctx, dir, target, no_folding, verbose):
+    if target is None:
+        target = os.path.dirname(dir.rstrip(os.path.sep))
     ctx.obj = Steeve(dir, target, no_folding, verbose)
 
 
