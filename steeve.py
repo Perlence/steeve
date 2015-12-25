@@ -218,7 +218,6 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
                 "package '{}' is not stowed"
                 .format(package))
             return
-        self.unstow(package)
         self.stow(package, version)
 
     def ls(self, package, quiet):
