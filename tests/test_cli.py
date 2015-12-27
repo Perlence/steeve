@@ -2,7 +2,7 @@ import steeve
 
 
 def test_no_stow(runner):
-    """Must not do anything unless GNU stow is installed"""
+    """Must not do anything unless GNU stow is installed."""
     # Clean PATH so 'stow' won't be found
     runner.env['PATH'] = ''
     require_stow = [
@@ -24,7 +24,7 @@ def test_no_stow(runner):
 
 
 def test_valid_version(runner):
-    """Must fail when given version is 'current'"""
+    """Must fail when given version is 'current'."""
     result = runner.invoke(steeve.cli, ['stow', 'foo', 'current'])
     assert result.exit_code == 2
     assert "must not be 'current'" in result.output

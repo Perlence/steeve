@@ -17,6 +17,7 @@ def runner():
 
 @pytest.fixture
 def foo_package():
+    """Return a package with single version."""
     binpath = os.path.join('stow', 'foo', '1.0', 'bin')
     os.makedirs(binpath)
     with open(os.path.join(binpath, 'foo'), 'w'):
