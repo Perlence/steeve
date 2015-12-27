@@ -3,11 +3,8 @@ import os
 import steeve
 
 
-def test_unstow(runner, foo_package):
-    """Must remove all previously linked files"""
-    result = runner.invoke(steeve.cli, ['stow', 'foo', '1.0'])
-    assert result.exit_code == 0
-
+def test_unstow(runner, stowed_foo_package):
+    """Must remove all previously linked files."""
     result = runner.invoke(steeve.cli, ['unstow', 'foo'])
     assert result.exit_code == 0
     assert not os.path.exists(os.path.join('bin', 'foo'))
