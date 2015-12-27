@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from collections import namedtuple
 import errno
 import os
@@ -31,6 +33,10 @@ version_argument = click.argument(
     'version', required=False, callback=validate_dir)
 path_argument = click.argument('path')
 
+yes_option = click.option(
+    '-y', '--yes', is_flag=True, expose_value=False,
+    help="Assume Yes to all queries and do not prompt.")
+
 
 @click.group()
 @click.option('-d', '--dir', envvar='STEEVE_DIR', metavar='DIR',
@@ -61,6 +67,7 @@ def install(steeve, package, version, path):
 
 
 @cli.command(help="Reinstall package from given folder.")
+@yes_option
 @required_package_argument
 @required_version_argument
 @path_argument
@@ -71,6 +78,7 @@ def reinstall(steeve, package, version, path):
 
 
 @cli.command(help="Remove the whole package or specific version.")
+@yes_option
 @required_package_argument
 @version_argument
 @click.pass_obj
@@ -131,34 +139,48 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
 
         self.stow(package, version)
 
-    def uninstall(self, package, version=None):
-        if version is None:
-            self.unstow(package)
-            try:
-                shutil.rmtree(self.package_path(package))
-            except OSError as err:
-                if err.errno == errno.ENOENT:
-                    raise click.ClickException(
-                        "package '{}' does not exist"
-                        .format(package))
-                else:
-                    raise
+    def uninstall(self, package, version=None, yes=False):
+        if version is not None:
+            if not yes:
+                self.get_confirmation(
+                    'Are you sure you want to uninstall {} version {}? [y/N]: '
+                    .format(package, version))
+            self.uninstall_version(package, version)
         else:
-            if version == self.current_version(package):
-                self.unstow(package)
-            try:
-                shutil.rmtree(self.package_path(package, version))
-            except OSError as err:
-                if err.errno == errno.ENOENT:
-                    raise click.ClickException(
-                        "package '{}/{}' is not installed"
-                        .format(package, version))
-                else:
-                    raise
+            if not yes:
+                print("Uninstalling {} and all it's versions:".format(package))
+                self.ls(package)
+                self.get_confirmation('Proceed? [y/N]: ')
+            self.uninstall_package(package)
 
-            # Remove empty package folder
-            if not os.listdir(self.package_path(package)):
-                os.rmdir(self.package_path(package))
+    def uninstall_package(self, package):
+        self.unstow(package)
+        try:
+            shutil.rmtree(self.package_path(package))
+        except OSError as err:
+            if err.errno == errno.ENOENT:
+                raise click.ClickException(
+                    "package '{}' does not exist"
+                    .format(package))
+            else:
+                raise
+
+    def uninstall_version(self, package, version):
+        if version == self.current_version(package):
+            self.unstow(package)
+        try:
+            shutil.rmtree(self.package_path(package, version))
+        except OSError as err:
+            if err.errno == errno.ENOENT:
+                raise click.ClickException(
+                    "package '{}/{}' is not installed"
+                    .format(package, version))
+            else:
+                raise
+
+        # Remove empty package folder
+        if not os.listdir(self.package_path(package)):
+            os.rmdir(self.package_path(package))
 
     def reinstall(self, package, version, path):
         self.uninstall(package, version)
@@ -220,7 +242,7 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
                 .format(package))
         self.stow(package, version)
 
-    def ls(self, package, quiet):
+    def ls(self, package=None, quiet=False):
         if package is None:
             try:
                 packages = os.listdir(self.dir)
@@ -281,6 +303,11 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
             return os.path.join(self.dir, package)
         else:
             return os.path.join(self.dir, package, version)
+
+    def get_confirmation(self, prompt):
+        confirm = raw_input(prompt)
+        if not confirm or confirm not in 'yY':
+            raise click.Abort
 
 
 if __name__ == '__main__':
