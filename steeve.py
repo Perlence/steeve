@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from collections import namedtuple
 import errno
 import os
@@ -148,7 +146,8 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
             self.uninstall_version(package, version)
         else:
             if not yes:
-                print("Uninstalling {} and all it's versions:".format(package))
+                click.echo("Uninstalling {} and all it's versions:"
+                           .format(package))
                 self.ls(package)
                 self.get_confirmation('Proceed? [y/N]: ')
             self.uninstall_package(package)
