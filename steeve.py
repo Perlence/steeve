@@ -138,18 +138,28 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
         self.stow(package, version)
 
     def uninstall(self, package, version=None, yes=False):
+        if not self.package_exists(package, version):
+            if version is not None:
+                raise click.ClickException(
+                    "the package '{}/{}' is not installed"
+                    .format(package, version))
+            else:
+                raise click.ClickException(
+                    "the package '{}' is not installed"
+                    .format(package))
+
         if version is not None:
             if not yes:
                 self.get_confirmation(
-                    'Are you sure you want to uninstall {} version {}? [y/N]: '
+                    "Are you sure you want to uninstall package '{}/{}'?"
                     .format(package, version))
             self.uninstall_version(package, version)
         else:
             if not yes:
-                click.echo("Uninstalling {} and all it's versions:"
+                click.echo("Uninstalling '{}' and all its versions:"
                            .format(package))
                 self.ls(package)
-                self.get_confirmation('Proceed? [y/N]: ')
+                self.get_confirmation('Proceed?')
             self.uninstall_package(package)
 
     def uninstall_package(self, package):
@@ -297,6 +307,10 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
                 raise
         return os.path.basename(dst.rstrip(os.path.sep))
 
+    def package_exists(self, package, version=None):
+        path = self.package_path(package, version)
+        return os.path.exists(path)
+
     def package_path(self, package, version=None):
         if version is None:
             return os.path.join(self.dir, package)
@@ -304,7 +318,7 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
             return os.path.join(self.dir, package, version)
 
     def get_confirmation(self, prompt):
-        confirm = raw_input(prompt)
+        confirm = raw_input(prompt + ' [y/N]: ')
         if not confirm or confirm not in 'yY':
             raise click.Abort
 

@@ -3,6 +3,13 @@ import os
 import steeve
 
 
+def test_uninstall_nonexistent(runner):
+    """Must fail when trying to uninstall nonexisting package."""
+    result = runner.invoke(steeve.cli, ['uninstall', 'nonexistent', '1.0'])
+    assert result.exit_code == 1
+    assert 'not installed' in result.output
+
+
 def test_interrupt_uninstall(runner, foo_package):
     """Must not uninstall unless user inputs 'y'."""
     result = runner.invoke(steeve.cli, ['uninstall', 'foo', '1.0'],

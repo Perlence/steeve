@@ -34,6 +34,16 @@ def stowed_foo_package(runner, foo_package):
 
 
 @pytest.fixture
+def foo_release():
+    """Return a package with single version."""
+    binpath = os.path.join('releases', 'foo-1.0', 'bin')
+    os.makedirs(binpath)
+    with open(os.path.join(binpath, 'foo'), 'w'):
+        pass
+    return 'foo'
+
+
+@pytest.fixture
 def bar_package():
     """Return a package with two versions."""
     for version in ('1.0', '2.0'):

@@ -1,7 +1,7 @@
 import steeve
 
 
-def test_no_stow(runner):
+def test_no_stow(runner, foo_release, foo_package):
     """Must not do anything unless GNU stow is installed."""
     # Clean PATH so 'stow' won't be found
     runner.env['PATH'] = ''
