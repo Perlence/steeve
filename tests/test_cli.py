@@ -10,7 +10,6 @@ def test_no_stow(runner, foo_release, foo_package):
         ['uninstall', 'foo', '1.0'],
         ['stow', 'foo', '1.0'],
         ['unstow', 'foo'],
-        ['restow', 'foo'],
     ]
     for args in require_stow:
         result = runner.invoke(steeve.cli, args)

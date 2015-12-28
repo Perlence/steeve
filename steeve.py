@@ -54,7 +54,7 @@ def cli(ctx, dir, target, no_folding, verbose):
     ctx.obj = Steeve(dir, target, no_folding, verbose)
 
 
-@cli.command(help="Install or reinstall package from given folder.")
+@cli.command(help="Install/reinstall package from given folder.")
 @required_package_argument
 @required_version_argument
 @required_path_argument
@@ -75,7 +75,7 @@ def uninstall(steeve, package, version, yes):
     steeve.uninstall(package, version, yes)
 
 
-@cli.command(help="Stow given package version into target dir.")
+@cli.command(help="Stow/restow given version into target dir.")
 @required_package_argument
 @required_version_argument
 @click.pass_obj
@@ -90,14 +90,6 @@ def stow(steeve, package, version):
 def unstow(steeve, package):
     check_stow()
     steeve.unstow(package, strict=True)
-
-
-@cli.command(help="Restow (like unstow followed by stow).")
-@required_package_argument
-@click.pass_obj
-def restow(steeve, package):
-    check_stow()
-    steeve.restow(package)
 
 
 @cli.command(help="List packages or package versions.")
@@ -235,14 +227,6 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
                 'stow returned code {}'
                 .format(err.returncode))
         self.remove_current(package)
-
-    def restow(self, package):
-        version = self.current_version(package)
-        if version is None:
-            raise click.ClickException(
-                "package '{}' is not stowed"
-                .format(package))
-        self.stow(package, version)
 
     def ls(self, package=None, quiet=False):
         if package is None:
