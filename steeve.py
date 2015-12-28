@@ -29,7 +29,7 @@ required_version_argument = click.argument(
     'version', callback=validate_dir)
 version_argument = click.argument(
     'version', required=False, callback=validate_dir)
-path_argument = click.argument('path', type=click.Path(exists=True))
+required_path_argument = click.argument('path', type=click.Path(exists=True))
 
 yes_option = click.option(
     '-y', '--yes', is_flag=True,
@@ -54,25 +54,15 @@ def cli(ctx, dir, target, no_folding, verbose):
     ctx.obj = Steeve(dir, target, no_folding, verbose)
 
 
-@cli.command(help="Install package from given folder.")
+@cli.command(help="Install or reinstall package from given folder.")
 @required_package_argument
 @required_version_argument
-@path_argument
-@click.pass_obj
-def install(steeve, package, version, path):
-    check_stow()
-    steeve.install(package, version, path)
-
-
-@cli.command(help="Reinstall package from given folder.")
+@required_path_argument
 @yes_option
-@required_package_argument
-@required_version_argument
-@path_argument
 @click.pass_obj
-def reinstall(steeve, package, version, path):
+def install(steeve, package, version, path, yes):
     check_stow()
-    steeve.reinstall(package, version, path)
+    steeve.install(package, version, path, yes)
 
 
 @cli.command(help="Remove the whole package or specific version.")
@@ -120,7 +110,10 @@ def ls(steeve, package, quiet):
 
 
 class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
-    def install(self, package, version, path):
+    def install(self, package, version, path, yes=False):
+        if self.package_exists(package, version):
+            self.uninstall_version(package, version, yes, reinstall=True)
+
         try:
             shutil.copytree(path, self.package_path(package, version))
         except OSError as err:
@@ -149,20 +142,17 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
                     .format(package))
 
         if version is not None:
-            if not yes:
-                self.get_confirmation(
-                    "Are you sure you want to uninstall package '{}/{}'?"
-                    .format(package, version))
-            self.uninstall_version(package, version)
+            self.uninstall_version(package, version, yes)
         else:
-            if not yes:
-                click.echo("Uninstalling '{}' and all its versions:"
-                           .format(package))
-                self.ls(package)
-                self.get_confirmation('Proceed?')
-            self.uninstall_package(package)
+            self.uninstall_package(package, yes)
 
-    def uninstall_package(self, package):
+    def uninstall_package(self, package, yes=False):
+        if not yes:
+            click.echo("Uninstalling '{}' and all its versions:"
+                       .format(package))
+            self.ls(package)
+            self.get_confirmation('Proceed?')
+
         self.unstow(package)
         try:
             shutil.rmtree(self.package_path(package))
@@ -174,9 +164,16 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
             else:
                 raise
 
-    def uninstall_version(self, package, version):
+    def uninstall_version(self, package, version, yes=False, reinstall=False):
+        if not yes:
+            action = 'reinstall' if reinstall else 'uninstall'
+            self.get_confirmation(
+                "Are you sure you want to {} package '{}/{}'?"
+                .format(action, package, version))
+
         if version == self.current_version(package):
             self.unstow(package)
+
         try:
             shutil.rmtree(self.package_path(package, version))
         except OSError as err:
@@ -190,10 +187,6 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
         # Remove empty package folder
         if not os.listdir(self.package_path(package)):
             os.rmdir(self.package_path(package))
-
-    def reinstall(self, package, version, path):
-        self.uninstall(package, version)
-        self.install(package, version, path)
 
     def stow(self, package, version):
         if not os.path.exists(self.package_path(package, version)):

@@ -44,6 +44,15 @@ def foo_release():
 
 
 @pytest.fixture
+def foo_updated_release(foo_release):
+    """Return a package with updated single version."""
+    binpath = os.path.join('releases', 'foo-1.0', 'bin')
+    with open(os.path.join(binpath, 'foo-1.0'), 'w'):
+        pass
+    return 'foo'
+
+
+@pytest.fixture
 def bar_package():
     """Return a package with two versions."""
     for version in ('1.0', '2.0'):

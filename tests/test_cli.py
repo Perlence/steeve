@@ -7,7 +7,6 @@ def test_no_stow(runner, foo_release, foo_package):
     runner.env['PATH'] = ''
     require_stow = [
         ['install', 'foo', '1.0', 'releases/foo-1.0'],
-        ['reinstall', 'foo', '1.0', 'releases/foo-1.0'],
         ['uninstall', 'foo', '1.0'],
         ['stow', 'foo', '1.0'],
         ['unstow', 'foo'],
