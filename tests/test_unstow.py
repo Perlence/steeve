@@ -3,6 +3,13 @@ import os
 import steeve
 
 
+def test_no_current(runner, foo_package):
+    """Must fail when unstowing a package with no 'current' symlink."""
+    result = runner.invoke(steeve.cli, ['unstow', 'foo'])
+    assert result.exit_code == 1
+    assert 'not stowed' in result.output
+
+
 def test_unstow(runner, stowed_foo_package):
     """Must remove all previously linked files."""
     result = runner.invoke(steeve.cli, ['unstow', 'foo'])
