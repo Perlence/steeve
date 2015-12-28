@@ -12,10 +12,10 @@ Summary
 
 *steeve* is not a replacement for any full-fledged package manager like *dpkg*
 or *yum*, but instead an addition, designed to handle manually built software
-and binary distributions.  Instead of polluting ``/usr/local`` with binaries and
-libraries that aren't tracked by any package manager and thus cannot be safely
-removed or upgraded, *steeve* provides a structured approach that allows for
-managing multiple software versions in a matter of a command.
+and binary distributions.  Instead of polluting ``/usr/local`` with binaries
+and libraries that aren't tracked by any package manager and thus cannot be
+safely removed or upgraded, *steeve* provides a structured approach that allows
+for managing multiple software versions in a matter of a command.
 
 
 Packages
@@ -25,8 +25,8 @@ By default packages live in ``/usr/local/stow``.  This location is configured
 either via environment variable ``STEEVE_DIR`` or command-line option ``-d``,
 ``--dir``. A package consists of one or multiple subdirectories named after
 version.  Each version has directories with files that will be linked into
-*target directory*, which is ``/usr/local`` by default.  Target directory can be
-changed via environment variable ``STEEVE_TARGET`` or command-line option
+*target directory*, which is ``/usr/local`` by default.  Target directory can
+be changed via environment variable ``STEEVE_TARGET`` or command-line option
 ``-t``, ``--target``.  The prominent part of a package is symbolic link named
 ``current`` that points to current version.
 
@@ -54,10 +54,10 @@ Here's an example of a valid package tree:
 Tree Folding
 ============
 
-The main gotcha is GNU Stow's tree folding mechanism.  Please, get accustomed to
-it by reading chapter `Installing Packages
-<http://www.gnu.org/software/stow/manual/stow.html#Installing-Packages>`__ of GNU
-Stow manual.  You can disable folding by setting environment variable
+The main gotcha is GNU Stow's tree folding mechanism.  Please, get accustomed
+to it by reading chapter `Installing Packages
+<http://www.gnu.org/software/stow/manual/stow.html#Installing-Packages>`__ of
+GNU Stow manual.  You can disable folding by setting environment variable
 ``STEEVE_NO_FOLDING`` or passing ``--no-folding`` option.
 
 
@@ -110,8 +110,8 @@ To see usage of a command, run:
    $ steeve COMMAND --help
 
 *steeve* helps you install manually built programs.  For example, to install
-`tig <http://jonas.nitro.dk/tig/>`__, text-mode interface for git, first download
-the release tarball:
+`tig <http://jonas.nitro.dk/tig/>`__, text-mode interface for git, first
+download the release tarball:
 
 .. code-block:: bash
 
@@ -139,11 +139,11 @@ runs ``stow`` to link contents of ``current`` into ``/usr/local``:
    $ sudo ln -s /usr/local/stow/tig/2.1.1 /usr/local/stow/tig/current
    $ sudo stow -t /usr/local -d tig current
 
-To restow symbolic links, simply:
+To restow symbolic links, simply run ``steeve stow``:
 
 .. code-block:: bash
 
-   $ sudo steeve restow tig
+   $ sudo steeve stow tig
 
 Also *steeve* can manage binary distributions.  For instance, let's install
 Node.js binaries:
@@ -173,13 +173,14 @@ This will copy folder contents to ``/usr/local/stow/node/0.12.7``, delete stowed
 files from current version if any, link 0.12.7 to current, and stow files into
 ``/usr/local``.
 
-If you forgot to install some files, you can ``reinstall`` the package:
+If you forgot to install some files, you can ``install`` the package once again:
 
 .. code-block:: bash
 
-   $ sudo steeve reinstall node 0.12.7 ./node-v0.12.7-linux-x64
+   $ sudo steeve install node 0.12.7 ./node-v0.12.7-linux-x64
 
-It's achieved by uninstalling the package followed by installing it again.
+It's achieved by uninstalling the package followed by installing it again, so
+*steeve* will prompt you before reinstalling.
 
 To delete stowed files, run *steeve* with command ``unstow``:
 
