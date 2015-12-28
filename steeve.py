@@ -32,7 +32,7 @@ version_argument = click.argument(
 path_argument = click.argument('path', type=click.Path(exists=True))
 
 yes_option = click.option(
-    '-y', '--yes', is_flag=True, expose_value=False,
+    '-y', '--yes', is_flag=True,
     help="Assume Yes to all queries and do not prompt.")
 
 
@@ -80,9 +80,9 @@ def reinstall(steeve, package, version, path):
 @required_package_argument
 @version_argument
 @click.pass_obj
-def uninstall(steeve, package, version):
+def uninstall(steeve, package, version, yes):
     check_stow()
-    steeve.uninstall(package, version)
+    steeve.uninstall(package, version, yes)
 
 
 @cli.command(help="Stow given package version into target dir.")

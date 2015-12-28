@@ -18,6 +18,14 @@ def test_interrupt_uninstall(runner, foo_package):
     assert os.path.exists(os.path.join('stow', 'foo', '1.0'))
 
 
+def test_uninstall_no_prompt(runner, foo_package):
+    """Must not ask user for prompt."""
+    result = runner.invoke(steeve.cli, ['uninstall', '-y', 'foo', '1.0'])
+    assert result.exit_code == 0
+    assert not os.path.exists(os.path.join('stow', 'foo', '1.0'))
+    assert not os.path.exists(os.path.join('stow', 'foo'))
+
+
 def test_uninstall_unstowed_version(runner, foo_package):
     """Must remove the whole package if version is single."""
     result = runner.invoke(steeve.cli, ['uninstall', 'foo', '1.0'],
