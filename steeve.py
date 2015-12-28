@@ -31,7 +31,7 @@ required_version_argument = click.argument(
     'version', callback=validate_dir)
 version_argument = click.argument(
     'version', required=False, callback=validate_dir)
-path_argument = click.argument('path')
+path_argument = click.argument('path', type=click.Path(exists=True))
 
 yes_option = click.option(
     '-y', '--yes', is_flag=True, expose_value=False,
