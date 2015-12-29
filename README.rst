@@ -146,38 +146,31 @@ To restow symbolic links, simply run ``steeve stow``:
    $ sudo steeve stow tig
 
 Also *steeve* can manage binary distributions.  For instance, let's install
-Node.js binaries:
+p4merge binaries:
 
 .. code-block:: bash
 
-   $ curl -O -L https://nodejs.org/dist/v0.12.7/node-v0.12.7-linux-x64.tar.gz
-   $ tar xf node-v0.12.7-linux-x64.tar.gz
-   $ cd node-v0.12.7-linux-x64
-   $ ls
-   bin/  ChangeLog  include/  lib/  LICENSE  README.md  share/
+   $ curl -O -L http://cdist2.perforce.com/perforce/r15.2/bin.linux26x86_64/p4v.tgz
+   $ tar xf p4v.tgz
+   $ ls p4v-2015.2.1315639
+   bin/  lib/
 
-There are some text files that don't belong to ``/usr/local``, so remove them:
-
-.. code-block:: bash
-
-   $ rm ChangeLog LICENSE README.md
-   $ cd ..
-
-Now, install Node.js from directory with ``steeve install``:
+Now, install p4merge from directory with ``steeve install``:
 
 .. code-block:: bash
 
-   $ sudo steeve install node 0.12.7 ./node-v0.12.7-linux-x64
+   $ sudo steeve install p4v 2015.2.1315639 ./p4v-2015.2.1315639
 
-This will copy folder contents to ``/usr/local/stow/node/0.12.7``, delete stowed
-files from current version if any, link 0.12.7 to current, and stow files into
-``/usr/local``.
+This will copy folder contents to ``/usr/local/stow/p4v/2015.2.1315639``,
+delete stowed files from current version if any, link 2015.2.1315639 to
+current, and stow files into ``/usr/local``.
 
-If you forgot to install some files, you can ``install`` the package once again:
+If you forgot to install some files, you can ``install`` the package once
+again:
 
 .. code-block:: bash
 
-   $ sudo steeve install node 0.12.7 ./node-v0.12.7-linux-x64
+   $ sudo steeve install p4v 2015.2.1315639 ./p4v-2015.2.1315639
 
 It's achieved by uninstalling the package followed by installing it again, so
 *steeve* will prompt you before reinstalling.
@@ -216,8 +209,8 @@ name and version:
 This will delete stowed files if version 2.1.1 is current, and remove folder
 ``2.1.1``.
 
-Finally, to remove package with all its versions, run command ``uninstall`` with
-only a package name:
+Finally, to remove package with all its versions, run command ``uninstall``
+with only a package name:
 
 .. code-block:: bash
 
@@ -227,8 +220,8 @@ only a package name:
 Thanks
 ======
 
-Thanks to authors of `GoboLinux <http://gobolinux.org/>`__ from which I borrowed
-the idea of package structure.
+Thanks to authors of `GoboLinux <http://gobolinux.org/>`__ from which I
+borrowed the idea of package structure.
 
 Thanks to Armin Ronacher and contributors for `Click
 <http://click.pocoo.org/>`__ which is *\*click\** nice.
