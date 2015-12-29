@@ -189,24 +189,23 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
 
         self.unstow(package)
         self.link_current(package, version)
-        try:
-            options = []
-            if self.no_folding:
-                options.append('--no-folding')
-            if self.verbose > 0:
-                options.append('--verbose={}'.format(self.verbose))
-            subprocess.check_call([
-                'stow'
-            ] + options + [
-                '-t', self.target,
-                '-d', self.package_path(package),
-                'current'
-            ])
-        except subprocess.CalledProcessError as err:
+        options = []
+        if self.no_folding:
+            options.append('--no-folding')
+        if self.verbose > 0:
+            options.append('--verbose={}'.format(self.verbose))
+        status = subprocess.call([
+            'stow'
+        ] + options + [
+            '-t', self.target,
+            '-d', self.package_path(package),
+            'current',
+        ])
+        if status:
             self.remove_current(package)
             raise click.ClickException(
                 'stow returned code {}'
-                .format(err.returncode))
+                .format(status))
 
     def unstow(self, package, strict=False):
         if self.current_version(package) is None:
@@ -216,17 +215,18 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
                     .format(package))
             else:
                 return
-        try:
-            subprocess.check_call([
-                'stow',
-                '-t', self.target,
-                '-d', self.package_path(package),
-                '-D',
-                'current'])
-        except subprocess.CalledProcessError as err:
+
+        status = subprocess.call([
+            'stow',
+            '-t', self.target,
+            '-d', self.package_path(package),
+            '-D',
+            'current',
+        ])
+        if status:
             raise click.ClickException(
                 'stow returned code {}'
-                .format(err.returncode))
+                .format(status))
         self.remove_current(package)
 
     def ls(self, package=None, quiet=False):
@@ -280,7 +280,7 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
             dst = os.readlink(self.package_path(package, 'current'))
         except OSError as err:
             if err.errno == errno.ENOENT:
-                return None
+                return
             else:
                 raise
         return os.path.basename(dst.rstrip(os.path.sep))
