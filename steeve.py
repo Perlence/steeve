@@ -143,7 +143,7 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
             click.echo("Uninstalling '{}' and all its versions:"
                        .format(package))
             self.ls(package)
-            self.get_confirmation('Proceed?')
+            click.confirm('Proceed?', abort=True)
 
         self.unstow(package)
         try:
@@ -159,9 +159,10 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
     def uninstall_version(self, package, version, yes=False, reinstall=False):
         if not yes:
             action = 'reinstall' if reinstall else 'uninstall'
-            self.get_confirmation(
+            click.confirm(
                 "Are you sure you want to {} package '{}/{}'?"
-                .format(action, package, version))
+                .format(action, package, version),
+                abort=True)
 
         if version == self.current_version(package):
             self.unstow(package)
@@ -293,12 +294,6 @@ class Steeve(namedtuple('Steeve', 'dir target no_folding verbose')):
             return os.path.join(self.dir, package)
         else:
             return os.path.join(self.dir, package, version)
-
-    def get_confirmation(self, prompt):
-        confirm = raw_input(prompt + ' [y/N]: ')
-        if not confirm or confirm not in 'yY':
-            raise click.Abort
-
 
 if __name__ == '__main__':
     cli()
