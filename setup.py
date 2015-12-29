@@ -6,7 +6,7 @@ with open('README.rst') as fp:
 
 setup(
     name='steeve',
-    version='0.1.1',
+    version='0.2',
     author='Sviatoslav Abakumov',
     author_email='dust.harvesting@gmail.com',
     description=u'Tiny GNU Stow–based package manager',
