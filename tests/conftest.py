@@ -29,7 +29,7 @@ def foo_package():
 
 @pytest.fixture
 def stowed_foo_package(runner, foo_package):
-    result = runner.invoke(steeve.cli, ['stow', 'foo', '1.0'])
+    result = runner.invoke(steeve.cli, ['--no-folding', 'stow', 'foo', '1.0'])
     assert result.exit_code == 0
 
 
@@ -64,5 +64,5 @@ def bar_package():
 
 @pytest.fixture
 def stowed_bar_package(runner, bar_package):
-    result = runner.invoke(steeve.cli, ['stow', 'bar', '1.0'])
+    result = runner.invoke(steeve.cli, ['--no-folding', 'stow', 'bar', '1.0'])
     assert result.exit_code == 0

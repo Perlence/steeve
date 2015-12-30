@@ -22,3 +22,11 @@ def test_strict(runner):
     result = runner.invoke(steeve.cli, ['unstow', 'nonstowed'])
     assert result.exit_code == 1
     assert 'not stowed' in result.output
+
+
+def test_unstow_multiple(runner, stowed_foo_package, stowed_bar_package):
+    """Must remove previously linked files from multiple packages."""
+    result = runner.invoke(steeve.cli, ['unstow', 'foo', 'bar'])
+    assert result.exit_code == 0
+    assert not os.path.exists(os.path.join('bin', 'foo'))
+    assert not os.path.exists(os.path.join('bin', 'bar'))

@@ -32,6 +32,8 @@ def check_stow():
 
 required_package_argument = click.argument(
     'package', callback=validate_dir)
+required_packages_argument = click.argument(
+    'packages', nargs=-1, callback=validate_dir)
 package_argument = click.argument(
     'package', required=False, callback=validate_dir)
 required_version_argument = click.argument(
@@ -97,11 +99,12 @@ def stow(steeve, package, version):
 
 
 @cli.command(help="Delete stowed symlinks.")
-@required_package_argument
+@required_packages_argument
 @click.pass_obj
-def unstow(steeve, package):
+def unstow(steeve, packages):
     check_stow()
-    steeve.unstow(package, strict=True)
+    for package in packages:
+        steeve.unstow(package, strict=True)
 
 
 @cli.command(help="List packages or package versions.")
