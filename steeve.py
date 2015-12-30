@@ -7,6 +7,8 @@ import subprocess
 import click
 from whichcraft import which
 
+__version__ = '0.2'
+
 
 def validate_dir(ctx, param, value):
     if value is not None and (os.path.sep in value or '\0' in value):
@@ -14,6 +16,13 @@ def validate_dir(ctx, param, value):
     if param.name == 'version' and value == 'current':
         raise click.BadParameter("must not be 'current'.")
     return value
+
+
+def show_version(ctx, param, value):
+    if not value:
+        return
+    click.echo('click ' + __version__)
+    ctx.exit()
 
 
 def check_stow():
@@ -47,6 +56,9 @@ yes_option = click.option(
               help="Disable folding of newly stowed directories.")
 @click.option('-v', '--verbose', envvar='STEEVE_VERBOSE', count=True,
               help="Increase verbosity.")
+@click.option('--version', is_flag=True, callback=show_version,
+              expose_value=False,
+              help="Show version and exit.")
 @click.pass_context
 def cli(ctx, dir, target, no_folding, verbose):
     if target is None:

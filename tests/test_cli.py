@@ -26,3 +26,10 @@ def test_valid_version(runner):
     result = runner.invoke(steeve.cli, ['stow', 'foo', 'current'])
     assert result.exit_code == 2
     assert "must not be 'current'" in result.output
+
+
+def test_version(runner):
+    """Must show version number and exit."""
+    result = runner.invoke(steeve.cli, ['--version'])
+    assert result.exit_code == 0
+    assert "click " + steeve.__version__ in result.output
