@@ -1,0 +1,7 @@
+#!/usr/bin/make -f
+
+%: wheels
+	dh $@ --with python-virtualenv
+
+wheels: requirements.txt
+	pip wheel --wheel-dir ./wheels -r requirements.txt

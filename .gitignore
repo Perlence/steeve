@@ -59,3 +59,9 @@ py34/
 
 # ctags files
 tags
+
+# Cached wheels
+wheels
+
+# Generated Debian stuff
+debian/steeve
