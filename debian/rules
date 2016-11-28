@@ -1,7 +1,10 @@
 #!/usr/bin/make -f
 
-%: wheels
+binary: wheels
 	dh $@ --with python-virtualenv
 
-wheels: requirements.txt
-	pip wheel --wheel-dir ./wheels -r requirements.txt
+%:
+	dh $@ --with python-virtualenv
+
+wheels: pin-requirements.txt
+	pip wheel --wheel-dir ./wheels --find-links ./wheels -r pin-requirements.txt
