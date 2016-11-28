@@ -11,7 +11,7 @@ Summary
 =======
 
 *steeve* is not a replacement for any full-fledged package manager like *dpkg*
-or *yum*, but instead an addition, designed to handle manually built software
+or *rpm*, but instead an addition, designed to handle manually built software
 and binary distributions.  Instead of polluting ``/usr/local`` with binaries
 and libraries that aren't tracked by any package manager and thus cannot be
 safely removed or upgraded, *steeve* provides a structured approach that allows
