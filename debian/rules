@@ -1,0 +1,5 @@
+#!/usr/bin/make -f
+export PYBUILD_NAME=steeve
+
+%:
+	dh $@ --with python2,python3 --buildsystem=pybuild

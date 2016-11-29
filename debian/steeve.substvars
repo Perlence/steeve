@@ -1,0 +1,4 @@
+python:Depends=python, python-click, python:any (<< 2.8), python:any (>= 2.7.5-5~), python:any (>= 2.7~)
+python:Versions=2.7
+python3:Depends=python
+misc:Depends=

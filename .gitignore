@@ -7,8 +7,11 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+.eggs/
+.pybuild/
 env/
 build/
+debian/steeve/
 develop-eggs/
 dist/
 downloads/
@@ -18,6 +21,7 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -59,9 +63,3 @@ py34/
 
 # ctags files
 tags
-
-# Cached wheels
-wheels/
-
-# Generated Debian stuff
-deb_dist/
