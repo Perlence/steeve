@@ -1,8 +1,13 @@
 # -*- encoding: UTF-8 -*
 from setuptools import setup
 
-with open('README.rst') as fp:
-    README = fp.read()
+long_description = """\
+steeve is not a replacement for any full-fledged package manager like *dpkg* or
+*rpm*, but instead an addition, designed to handle manually built software and
+binary distributions. Instead of polluting ``/usr/local`` with binaries and
+libraries that aren't tracked by any package manager and thus cannot be safely
+removed or upgraded, *steeve* provides a structured approach that allows for
+managing multiple software versions in a matter of a command."""
 
 setup(
     name='steeve',
@@ -10,7 +15,7 @@ setup(
     author='Sviatoslav Abakumov',
     author_email='dust.harvesting@gmail.com',
     description=u'Tiny GNU Stow–based package manager',
-    long_description=README,
+    long_description=long_description,
     url='https://github.com/Perlence/steeve',
     download_url='https://github.com/Perlence/steeve/archive/master.zip',
     py_modules=['steeve'],
@@ -20,10 +25,7 @@ setup(
             'steeve = steeve:cli',
         ],
     },
-    install_requires=[
-        'click>=5,<6',
-        'whichcraft',
-    ],
+    install_requires=['click'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',

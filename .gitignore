@@ -61,7 +61,7 @@ py34/
 tags
 
 # Cached wheels
-wheels
+wheels/
 
 # Generated Debian stuff
-debian/steeve
+deb_dist/
