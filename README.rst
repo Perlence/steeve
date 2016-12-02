@@ -109,6 +109,9 @@ To see usage of a command, run:
 
    $ steeve COMMAND --help
 
+``stow``
+--------
+
 *steeve* helps you install manually built programs.  For example, to install
 `tig <http://jonas.nitro.dk/tig/>`__, text-mode interface for git, first
 download the release tarball:
@@ -145,6 +148,9 @@ To restow symbolic links, simply run ``steeve stow``:
 
    $ sudo steeve stow tig
 
+``install``
+-----------
+
 Also *steeve* can manage binary distributions.  For instance, let's install
 p4merge binaries:
 
@@ -175,11 +181,17 @@ again:
 It's achieved by uninstalling the package followed by installing it again, so
 *steeve* will prompt you before reinstalling.
 
+``unstow``
+----------
+
 To delete stowed files, run *steeve* with command ``unstow``:
 
 .. code-block:: bash
 
    $ sudo steeve unstow tig
+
+``list``
+--------
 
 To list packages, run command ``ls`` without arguments:
 
@@ -198,6 +210,9 @@ To list package version, run command ``ls`` with package name:
    * 2.1.1
 
 *steeve* marks current version with an asterisk as seen above.
+
+``uninstall``
+-------------
 
 To remove specific version of a package, run command ``uninstall`` with package
 name and version:
