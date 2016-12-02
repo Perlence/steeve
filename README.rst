@@ -190,8 +190,8 @@ To delete stowed files, run *steeve* with command ``unstow``:
 
    $ sudo steeve unstow tig
 
-``list``
---------
+``ls``
+------
 
 To list packages, run command ``ls`` without arguments:
 
