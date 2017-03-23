@@ -1,3 +1,5 @@
+import os
+
 import steeve
 
 
@@ -33,3 +35,12 @@ def test_version(runner):
     result = runner.invoke(steeve.cli, ['--version'])
     assert result.exit_code == 0
     assert "click " + steeve.__version__ in result.output
+
+
+def test_target_not_set(runner, foo_package):
+    os.chdir('stow')
+    runner.env['STEEVE_DIR'] = '.'
+    del runner.env['STEEVE_TARGET']
+    result = runner.invoke(steeve.cli, ['stow', 'foo', '1.0'])
+    assert result.exit_code == 0
+    assert os.path.exists('../bin/foo')

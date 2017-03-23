@@ -63,8 +63,9 @@ yes_option = click.option(
               help="Show version and exit.")
 @click.pass_context
 def cli(ctx, dir, target, no_folding, verbose):
+    dir = os.path.abspath(dir)
     if target is None:
-        target = os.path.dirname(dir.rstrip(os.path.sep))
+        target = os.path.dirname(dir)
     ctx.obj = Steeve(dir, target, no_folding, verbose)
 
 
