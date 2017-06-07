@@ -71,19 +71,26 @@ Dependencies
 Installation
 ============
 
-Get the package from PyPI:
+Download a single-file executable from Github:
 
 .. code-block:: bash
 
-   $ pip install steeve
+    curl -L https://github.com/Perlence/steeve/releases/download/v0.2/steeve_0.2_amd64 -o /usr/local/bin/steeve
+    chmod +x /usr/local/bin/steeve
+
+Or get the package from PyPI:
+
+.. code-block:: bash
+
+   pip install steeve
 
 Or get the latest development version:
 
 .. code-block:: bash
 
-   $ git clone https://github.com/Perlence/steeve.git
-   $ cd steeve
-   $ pip install --editable .
+   git clone https://github.com/Perlence/steeve.git
+   cd steeve
+   pip install --editable .
 
 To install bash completion, download the `script
 <https://github.com/Perlence/steeve/blob/master/completion/steeve.bash>`__ and
@@ -118,7 +125,7 @@ download the release tarball:
 
 .. code-block:: bash
 
-   $ curl -O -L http://jonas.nitro.dk/tig/releases/tig-2.1.1.tar.gz
+   $ curl -LO http://jonas.nitro.dk/tig/releases/tig-2.1.1.tar.gz
 
 Then configure, make and install with prefix:
 
@@ -156,7 +163,7 @@ p4merge binaries:
 
 .. code-block:: bash
 
-   $ curl -O -L http://cdist2.perforce.com/perforce/r15.2/bin.linux26x86_64/p4v.tgz
+   $ curl -LO http://cdist2.perforce.com/perforce/r15.2/bin.linux26x86_64/p4v.tgz
    $ tar xf p4v.tgz
    $ ls p4v-2015.2.1315639
    bin/  lib/
