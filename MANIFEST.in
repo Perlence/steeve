@@ -1,4 +1,5 @@
-include Makefile CHANGES.rst LICENSE.rst
-recursive-include tests *
-recursive-exclude tests *.pyc
-recursive-exclude tests *.pyo
+include Makefile
+include CHANGES.rst
+include LICENSE.rst
+graft tests
+global-exclude *.py[co]
